@@ -282,6 +282,17 @@ function YearsSection() {
   );
 }
 
+// function SemeseterYears({ semester_number: number }: { semester_number: number }) {
+//   if (semester_number === 1 || semester_number == 2) return 1;
+//   if (semester_number === 3 || semester_number == 4) return 2;
+//   if (semester_number === 5 || semester_number == 6) return 3;
+//   if (semester_number === 7 || semester_number == 8) return 4;
+// }
+
+function SemeseterYears(semester_number: number) {
+  return Math.ceil(semester_number / 2);
+}
+
 function SemestersSection() {
   return (
     <CrudSection<Semester, Semester, Semester>
@@ -294,7 +305,7 @@ function SemestersSection() {
       })}
       buildCreatePayload={(value) => ({
         semester_number: Number(value),
-        year_id: 1,
+        year_id: SemeseterYears(Number(value)),
       })}
       buildUpdatePayload={(value, current) => ({
         semester_number: Number(value),
