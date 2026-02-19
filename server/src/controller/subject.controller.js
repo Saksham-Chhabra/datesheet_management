@@ -11,11 +11,11 @@ export function getAllSubjects(req, res) {
 }
 
 export function createSubject(req, res) {
-  const { subject_name } = req.body;
+  const { subject_name, subject_code } = req.body;
   if (!subject_name) {
     return res.status(400).json({ message: "Subject name is required" });
   }
-  Subject.create({ subject_name })
+  Subject.create({ subject_name, subject_code })
     .then((subject) => {
       res.status(201).json(subject);
     })

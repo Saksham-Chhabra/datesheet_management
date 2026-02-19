@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AcademicSetup from "./pages/admin/AcademicSetup";
+import AcademicSetup from "./pages/admin/AcademicSetup2";
 import Login from "./pages/Login";
 import GenerateDatesheet from "./pages/admin/GenerateDatesheet";
 

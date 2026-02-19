@@ -11,13 +11,13 @@ export function getAllSemesters(req, res) {
 }
 
 export function createSemester(req, res) {
-  const { semester_name, year_id } = req.body;
-  if (!semester_name || !year_id) {
+  const { semester_number } = req.body;
+  if (!semester_number) {
     return res
       .status(400)
       .json({ message: "Semester name and year_id are required" });
   }
-  Semester.create({ semester_name, year_id })
+  Semester.create({ semester_number })
     .then((semester) => {
       res.status(201).json(semester);
     })
