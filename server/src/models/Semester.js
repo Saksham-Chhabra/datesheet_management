@@ -15,6 +15,14 @@ const Semester = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    year_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: "year",
+        key: "year_id",
+      },
+    },
   },
   {
     tableName: "semester",
@@ -22,7 +30,5 @@ const Semester = sequelize.define(
   }
 );
 
-Semester.belongsTo(Year, { foreignKey: "year_id" });
-Year.hasMany(Semester, { foreignKey: "year_id" });
 
 export default Semester;

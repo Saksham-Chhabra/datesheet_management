@@ -15,6 +15,14 @@ const Degree = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    department_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: "department",
+        key: "department_id",
+      },
+    },
   },
   {
     tableName: "degree",
@@ -22,7 +30,5 @@ const Degree = sequelize.define(
   }
 );
 
-Degree.belongsTo(Department, { foreignKey: "department_id" });
-Department.hasMany(Degree, { foreignKey: "department_id" });
 
 export default Degree;

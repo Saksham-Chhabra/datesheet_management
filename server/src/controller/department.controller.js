@@ -46,7 +46,11 @@ export function updateDepartment(req, res) {
   Department.update({ department_name }, { where: { department_id: id } })
     .then(([updated]) => {
       if (updated) {
-        res.status(200).json({ message: "Department updated successfully" });
+        Department.findByPk(id).then((department) => {
+          res
+            .status(200)
+            .json({ message: "Department updated successfully", department });
+        });
       } else {
         res.status(404).json({ message: "Department not found" });
       }

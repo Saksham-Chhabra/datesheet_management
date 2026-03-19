@@ -3,6 +3,7 @@ import axiosInstance from "./axios.config";
 export interface Year {
   year_id?: number;
   year_name: string;
+  degree_id: number;
 }
 
 export const yearApi = {

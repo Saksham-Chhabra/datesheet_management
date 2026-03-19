@@ -11,11 +11,13 @@ export function getAllDegrees(req, res) {
 }
 
 export function createDegree(req, res) {
-  const { degree_name } = req.body;
-  if (!degree_name) {
-    return res.status(400).json({ message: "Degree name is required" });
+  const { degree_name, department_id } = req.body;
+  if (!degree_name || !department_id) {
+    return res
+      .status(400)
+      .json({ message: "Degree name and department_id are required" });
   }
-  Degree.create({ degree_name })
+  Degree.create({ degree_name, department_id })
     .then((degree) => {
       res.status(201).json(degree);
     })
@@ -41,11 +43,15 @@ export function deleteDegree(req, res) {
 
 export function updateDegree(req, res) {
   const { id } = req.params;
-  const { degree_name } = req.body;
-  Degree.update({ degree_name }, { where: { degree_id: id } })
+  const { degree_name, department_id } = req.body;
+  Degree.update({ degree_name, department_id }, { where: { degree_id: id } })
     .then(([updated]) => {
       if (updated) {
-        res.status(200).json({ message: "Degree updated successfully" });
+        Degree.findByPk(id).then((degree) => {
+          res
+            .status(200)
+            .json({ message: "Degree updated successfully", degree });
+        });
       } else {
         res.status(404).json({ message: "Degree not found" });
       }

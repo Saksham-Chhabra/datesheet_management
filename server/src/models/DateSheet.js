@@ -17,6 +17,30 @@ const DateSheet = sequelize.define(
       type: DataTypes.DATEONLY,
       allowNull: false,
     },
+    subject_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: "subject",
+        key: "subject_id",
+      },
+    },
+    exam_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: "exam",
+        key: "exam_id",
+      },
+    },
+    slot_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: "timeslot",
+        key: "slot_id",
+      },
+    },
   },
   {
     tableName: "datesheet",
@@ -24,8 +48,5 @@ const DateSheet = sequelize.define(
   }
 );
 
-DateSheet.belongsTo(Subject, { foreignKey: "subject_id" });
-DateSheet.belongsTo(Exam, { foreignKey: "exam_id" });
-DateSheet.belongsTo(TimeSlot, { foreignKey: "slot_id" });
 
 export default DateSheet;

@@ -15,6 +15,14 @@ const Branch = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    degree_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: "degree",
+        key: "degree_id",
+      },
+    },
   },
   {
     tableName: "branch",
@@ -22,7 +30,5 @@ const Branch = sequelize.define(
   }
 );
 
-Branch.belongsTo(Degree, { foreignKey: "degree_id" });
-Degree.hasMany(Branch, { foreignKey: "degree_id" });
 
 export default Branch;

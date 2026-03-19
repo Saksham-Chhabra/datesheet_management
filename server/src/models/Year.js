@@ -1,6 +1,7 @@
 // models/Year.js
 import { DataTypes } from "sequelize";
 import sequelize from "../db/db.js";
+import Degree from "./Degree.js";
 
 const Year = sequelize.define(
   "Year",
@@ -13,7 +14,14 @@ const Year = sequelize.define(
     year_name: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+    },
+    degree_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: "degree",
+        key: "degree_id",
+      },
     },
   },
   {
@@ -21,5 +29,8 @@ const Year = sequelize.define(
     timestamps: false,
   }
 );
+
+Year.belongsTo(Degree, { foreignKey: "degree_id" });
+Degree.hasMany(Year, { foreignKey: "degree_id" });
 
 export default Year;

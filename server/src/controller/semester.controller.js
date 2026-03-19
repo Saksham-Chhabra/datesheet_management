@@ -11,13 +11,13 @@ export function getAllSemesters(req, res) {
 }
 
 export function createSemester(req, res) {
-  const { semester_number } = req.body;
-  if (!semester_number) {
+  const { semester_number, year_id } = req.body;
+  if (!semester_number || !year_id) {
     return res
       .status(400)
-      .json({ message: "Semester name and year_id are required" });
+      .json({ message: "Semester number and year_id are required" });
   }
-  Semester.create({ semester_number })
+  Semester.create({ semester_number, year_id })
     .then((semester) => {
       res.status(201).json(semester);
     })
@@ -43,11 +43,18 @@ export function deleteSemester(req, res) {
 
 export function updateSemester(req, res) {
   const { id } = req.params;
-  const { semester_name } = req.body;
-  Semester.update({ semester_name }, { where: { semester_id: id } })
+  const { semester_number, year_id } = req.body;
+  Semester.update(
+    { semester_number, year_id },
+    { where: { semester_id: id } }
+  )
     .then(([updated]) => {
       if (updated) {
-        res.status(200).json({ message: "Semester updated successfully" });
+        Semester.findByPk(id).then((semester) => {
+          res
+            .status(200)
+            .json({ message: "Semester updated successfully", semester });
+        });
       } else {
         res.status(404).json({ message: "Semester not found" });
       }

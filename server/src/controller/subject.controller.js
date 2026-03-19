@@ -11,11 +11,14 @@ export function getAllSubjects(req, res) {
 }
 
 export function createSubject(req, res) {
-  const { subject_name, subject_code } = req.body;
-  if (!subject_name) {
-    return res.status(400).json({ message: "Subject name is required" });
+  const { subject_name, subject_code, branch_id, semester_id } = req.body;
+  if (!subject_name || !subject_code || !branch_id || !semester_id) {
+    return res.status(400).json({
+      message:
+        "Subject name, subject_code, branch_id, and semester_id are required",
+    });
   }
-  Subject.create({ subject_name, subject_code })
+  Subject.create({ subject_name, subject_code, branch_id, semester_id })
     .then((subject) => {
       res.status(201).json(subject);
     })
@@ -41,11 +44,18 @@ export function deleteSubject(req, res) {
 
 export function updateSubject(req, res) {
   const { id } = req.params;
-  const { subject_name } = req.body;
-  Subject.update({ subject_name }, { where: { subject_id: id } })
+  const { subject_name, subject_code, branch_id, semester_id } = req.body;
+  Subject.update(
+    { subject_name, subject_code, branch_id, semester_id },
+    { where: { subject_id: id } }
+  )
     .then(([updated]) => {
       if (updated) {
-        res.status(200).json({ message: "Subject updated successfully" });
+        Subject.findByPk(id).then((subject) => {
+          res
+            .status(200)
+            .json({ message: "Subject updated successfully", subject });
+        });
       } else {
         res.status(404).json({ message: "Subject not found" });
       }

@@ -12,7 +12,6 @@ import {
   type Department,
   type Degree,
   type Semester,
-  type Subject,
   type Year,
 } from "../../api";
 
@@ -24,7 +23,14 @@ type TabName =
   | "Semesters"
   | "Subjects";
 
-type RowItem = { id: number; name: string };
+function toNumericId(value: unknown) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? null : parsed;
+}
 
 function getErrorMessage(err: unknown, fallback: string) {
   if (axios.isAxiosError(err)) {
@@ -85,14 +91,7 @@ export default function AcademicSetup() {
           />
         )}
 
-        {activeTab === "Years" && (
-          <BasicCrud
-            title="Year"
-            api={yearApi}
-            idKey="year_id"
-            nameKey="year_name"
-          />
-        )}
+        {activeTab === "Years" && <YearsSection />}
 
         {activeTab === "Degrees" && <DegreesSection />}
         {activeTab === "Branches" && <BranchesSection />}
@@ -120,14 +119,13 @@ function BasicCrud({
   const [input, setInput] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [error, setError] = useState("");
 
   const load = async () => {
     try {
       const data = await api.getAll();
       setItems(data);
     } catch (err) {
-      setError(getErrorMessage(err, "Load failed"));
+      console.error(getErrorMessage(err, "Load failed"));
     }
   };
 
@@ -181,7 +179,9 @@ function DegreesSection() {
   useEffect(() => {
     departmentApi.getAll().then((d) => {
       setDepartments(d);
-      if (d.length) setDepartmentId(d[0].department_id);
+      setDepartmentId(
+        d[0]?.department_id != null ? Number(d[0].department_id) : null,
+      );
     });
   }, []);
 
@@ -218,7 +218,10 @@ function BranchesSection() {
   useEffect(() => {
     degreeApi.getAll().then((d) => {
       setDegrees(d);
-      if (d.length) setDegreeId(d[0].degree_id);
+      const firstDegreeId = toNumericId(d[0]?.degree_id);
+      if (firstDegreeId !== null) {
+        setDegreeId(firstDegreeId);
+      }
     });
   }, []);
 
@@ -246,6 +249,54 @@ function BranchesSection() {
   );
 }
 
+/* ================= YEARS ================= */
+
+function YearsSection() {
+  const [degrees, setDegrees] = useState<Degree[]>([]);
+  const [degreeId, setDegreeId] = useState<number | null>(null);
+
+  useEffect(() => {
+    degreeApi.getAll().then((d) => {
+      setDegrees(d);
+      const firstDegreeId = toNumericId(d[0]?.degree_id);
+      if (firstDegreeId !== null) {
+        setDegreeId(firstDegreeId);
+      }
+    });
+  }, []);
+
+  if (!degrees.length) {
+    return (
+      <div className="bg-white p-6 rounded shadow text-sm text-amber-700">
+        Create at least one degree before adding years.
+      </div>
+    );
+  }
+
+  return (
+    <AdvancedCrud
+      title="Year"
+      api={yearApi}
+      idKey="year_id"
+      nameKey="year_name"
+      extraFields={{ degree_id: degreeId }}
+      dropdown={
+        <select
+          value={degreeId ?? ""}
+          onChange={(e) => setDegreeId(Number(e.target.value))}
+          className="border px-3 py-2 rounded"
+        >
+          {degrees.map((d) => (
+            <option key={d.degree_id} value={d.degree_id}>
+              {d.degree_name}
+            </option>
+          ))}
+        </select>
+      }
+    />
+  );
+}
+
 /* ================= SEMESTERS ================= */
 
 function SemestersSection() {
@@ -255,7 +306,10 @@ function SemestersSection() {
   useEffect(() => {
     yearApi.getAll().then((y) => {
       setYears(y);
-      if (y.length) setYearId(y[0].year_id);
+      const firstYearId = toNumericId(y[0]?.year_id);
+      if (firstYearId !== null) {
+        setYearId(firstYearId);
+      }
     });
   }, []);
 
@@ -295,12 +349,18 @@ function SubjectsSection() {
   useEffect(() => {
     branchApi.getAll().then((b) => {
       setBranches(b);
-      if (b.length) setBranchId(b[0].branch_id);
+      const firstBranchId = toNumericId(b[0]?.branch_id);
+      if (firstBranchId !== null) {
+        setBranchId(firstBranchId);
+      }
     });
 
     semesterApi.getAll().then((s) => {
       setSemesters(s);
-      if (s.length) setSemesterId(s[0].semester_id);
+      const firstSemesterId = toNumericId(s[0]?.semester_id);
+      if (firstSemesterId !== null) {
+        setSemesterId(firstSemesterId);
+      }
     });
   }, []);
 
@@ -313,7 +373,6 @@ function SubjectsSection() {
       extraFields={{
         branch_id: branchId,
         semester_id: semesterId,
-        subject_code: `SUB${Date.now()}`,
       }}
       dropdown={
         <div className="flex gap-3">
@@ -361,6 +420,19 @@ function AdvancedCrud({
   const [input, setInput] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [formError, setFormError] = useState("");
+
+  const getMissingExtraFieldNames = () => {
+    if (!extraFields || typeof extraFields !== "object") {
+      return [];
+    }
+
+    return Object.entries(extraFields)
+      .filter(
+        ([, value]) => value === null || value === undefined || value === "",
+      )
+      .map(([key]) => key);
+  };
 
   const load = async () => {
     const data = await api.getAll();
@@ -374,20 +446,40 @@ function AdvancedCrud({
   const add = async () => {
     if (!input.trim()) return;
 
+    const missingFieldNames = getMissingExtraFieldNames();
+    if (missingFieldNames.length > 0) {
+      setFormError(
+        `Select required fields first: ${missingFieldNames.join(", ")}`,
+      );
+      return;
+    }
+
     await api.create({
       [nameKey]: isNumber ? Number(input) : input,
       ...extraFields,
+      ...(extraFields.branch_id ? { subject_code: `SUB${Date.now()}` } : {}),
     });
 
+    setFormError("");
     setInput("");
     load();
   };
 
   const update = async (id: number) => {
+    const missingFieldNames = getMissingExtraFieldNames();
+    if (missingFieldNames.length > 0) {
+      setFormError(
+        `Select required fields first: ${missingFieldNames.join(", ")}`,
+      );
+      return;
+    }
+
     await api.update(id, {
       [nameKey]: isNumber ? Number(editValue) : editValue,
       ...extraFields,
     });
+
+    setFormError("");
     setEditingId(null);
     load();
   };
@@ -413,6 +505,7 @@ function AdvancedCrud({
       onUpdate={update}
       onDelete={remove}
       dropdown={dropdown}
+      error={formError}
     />
   );
 }
@@ -434,9 +527,11 @@ function CrudTable({
   onUpdate,
   onDelete,
   dropdown,
+  error,
 }: any) {
   return (
     <div className="bg-white p-6 rounded shadow">
+      {error ? <div className="mb-4 text-sm text-red-600">{error}</div> : null}
       <div className="flex gap-3 mb-4 items-center">
         {dropdown}
         <input

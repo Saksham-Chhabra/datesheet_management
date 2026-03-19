@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function StudentLogin() {
+export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -31,24 +31,22 @@ export default function StudentLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-md rounded-xl shadow-lg p-8">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg
-              className="w-7 h-7 text-blue-600"
+              className="w-7 h-7 text-red-600"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
-              <path d="M10.5 1.5H3.75A2.25 2.25 0 001.5 3.75v12.5A2.25 2.25 0 003.75 18.5h12.5a2.25 2.25 0 002.25-2.25V9.5m-15-8v4m4-4v4m4-4v4" />
+              <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-800">
-            Student Login
-          </h1>
+          <h1 className="text-2xl font-semibold text-gray-800">Admin Login</h1>
           <p className="text-sm text-gray-500 mt-1">
-            View your datesheet and schedule
+            Sign in to manage the system
           </p>
         </div>
 
@@ -63,15 +61,13 @@ export default function StudentLogin() {
         <form className="space-y-4" onSubmit={handleSubmit}>
           {/* Email */}
           <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              College Email
-            </label>
+            <label className="block text-sm text-gray-600 mb-1">Email</label>
             <input
               type="email"
-              placeholder="your.email@nith.ac.in"
+              placeholder="admin@nith.ac.in"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
 
@@ -83,7 +79,7 @@ export default function StudentLogin() {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
 
@@ -91,7 +87,7 @@ export default function StudentLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition disabled:opacity-50"
+            className="w-full bg-red-600 text-white py-2 rounded-md font-medium hover:bg-red-700 transition disabled:opacity-50"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
@@ -105,19 +101,6 @@ export default function StudentLogin() {
           <div className="relative flex justify-center text-sm">
             <span className="px-2 bg-white text-gray-500">or</span>
           </div>
-        </div>
-
-        {/* Register Link */}
-        <div className="text-center mb-4">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
-            <Link
-              to="/register"
-              className="text-blue-600 hover:underline font-medium"
-            >
-              Register here
-            </Link>
-          </p>
         </div>
 
         {/* Back Button */}

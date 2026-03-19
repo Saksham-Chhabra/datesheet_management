@@ -21,6 +21,22 @@ const Subject = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    branch_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: "branch",
+        key: "branch_id",
+      },
+    },
+    semester_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      references: {
+        model: "semester",
+        key: "semester_id",
+      },
+    },
   },
   {
     tableName: "subject",
@@ -28,10 +44,5 @@ const Subject = sequelize.define(
   }
 );
 
-Subject.belongsTo(Branch, { foreignKey: "branch_id" });
-Branch.hasMany(Subject, { foreignKey: "branch_id" });
-
-Subject.belongsTo(Semester, { foreignKey: "semester_id" });
-Semester.hasMany(Subject, { foreignKey: "semester_id" });
 
 export default Subject;
