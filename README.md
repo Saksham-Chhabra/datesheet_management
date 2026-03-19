@@ -14,7 +14,14 @@ While the system is full-stack, the "brain" of the application resides in the **
 *Visual representation of the project folder structure and flow.*
 
 ---
+### 📂 Folder Structure Explanation
 
+* `/frontend` – Contains all UI components, HTML/CSS/JS files, and client-side logic.
+* `/backend` – Handles server-side logic, API routes, authentication, and database  connectivity.
+* `/sql` – Includes database schema definitions, table creation scripts, triggers, and stored procedures.
+* `/assets` – Stores images and static resources used in documentation.
+* `/config` – Contains environment configuration files such as database credentials.
+---
 ## 🛠 Tech Stack
 * **Database:** PostgreSQL (Relational Database)
 * **Backend:** Python/Flask or Node.js
