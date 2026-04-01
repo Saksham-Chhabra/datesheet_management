@@ -37,7 +37,7 @@ const DateSheet = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false,
       references: {
-        model: "timeslot",
+        model: "time_slot",
         key: "slot_id",
       },
     },
@@ -47,6 +47,5 @@ const DateSheet = sequelize.define(
     timestamps: false,
   }
 );
-
 
 export default DateSheet;

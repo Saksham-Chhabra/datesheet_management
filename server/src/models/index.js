@@ -6,7 +6,7 @@ import Semester from "./Semester.js";
 import Subject from "./Subject.js";
 import Exam from "./Exam.js";
 import TimeSlot from "./TimeSlot.js";
-import DateSheet from "./Datesheet.js";
+import DateSheet from "./DateSheet.js";
 import User from "./User.js";
 
 // Department -> Degree
