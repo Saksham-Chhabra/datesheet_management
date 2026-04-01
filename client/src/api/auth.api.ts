@@ -5,6 +5,23 @@ export interface AuthResponse {
   role?: "admin" | "student";
 }
 
+export interface MeResponse {
+  user: {
+    user_id: number;
+    email: string;
+    role: "admin" | "student";
+  };
+  profile: {
+    branch_id: number;
+    semester_id: number;
+  } | null;
+}
+
+export interface AcademicProfilePayload {
+  branch_id: number;
+  semester_id: number;
+}
+
 export const authApi = {
   register: async (email: string, password: string): Promise<AuthResponse> => {
     const response = await axiosInstance.post<AuthResponse>("/auth/register", {
@@ -24,6 +41,24 @@ export const authApi = {
 
   logout: async (): Promise<AuthResponse> => {
     const response = await axiosInstance.get<AuthResponse>("/auth/logout");
+    return response.data;
+  },
+
+  getMe: async (): Promise<MeResponse> => {
+    const response = await axiosInstance.get<MeResponse>("/auth/me");
+    return response.data;
+  },
+
+  updateMyAcademicProfile: async (
+    payload: AcademicProfilePayload,
+  ): Promise<{
+    message: string;
+    profile: { branch_id: number; semester_id: number };
+  }> => {
+    const response = await axiosInstance.put(
+      "/auth/my-academic-profile",
+      payload,
+    );
     return response.data;
   },
 };

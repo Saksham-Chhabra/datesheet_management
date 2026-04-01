@@ -10,8 +10,15 @@ async function updateUserRole() {
     await sequelize.authenticate();
     console.log("Connected to PostgreSQL");
 
-    const email = "23bcs098@nith.ac.in";
-    const role = "admin";
+    const email = (process.argv[2] || "23bcs100@nith.ac.in")
+      .toLowerCase()
+      .trim();
+    const role = (process.argv[3] || "admin").toLowerCase().trim();
+
+    if (!["student", "admin"].includes(role)) {
+      console.error("Invalid role. Use 'student' or 'admin'.");
+      process.exit(1);
+    }
 
     console.log(`Updating user ${email} to ${role}...`);
 
@@ -22,6 +29,11 @@ async function updateUserRole() {
     if (!user) {
       console.error("User not found!");
       process.exit(1);
+    }
+
+    if (user.role === role) {
+      console.log(`No update needed. User already has role: ${role}`);
+      process.exit(0);
     }
 
     await user.update({ role });

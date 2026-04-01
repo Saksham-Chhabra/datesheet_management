@@ -8,6 +8,7 @@ import Exam from "./Exam.js";
 import TimeSlot from "./TimeSlot.js";
 import DateSheet from "./DateSheet.js";
 import User from "./User.js";
+import StudentProfile from "./StudentProfile.js";
 
 // Department -> Degree
 Department.hasMany(Degree, { foreignKey: "department_id" });
@@ -45,6 +46,18 @@ DateSheet.belongsTo(Exam, { foreignKey: "exam_id" });
 TimeSlot.hasMany(DateSheet, { foreignKey: "slot_id" });
 DateSheet.belongsTo(TimeSlot, { foreignKey: "slot_id" });
 
+// User -> StudentProfile
+User.hasOne(StudentProfile, { foreignKey: "user_id" });
+StudentProfile.belongsTo(User, { foreignKey: "user_id" });
+
+// Branch -> StudentProfile
+Branch.hasMany(StudentProfile, { foreignKey: "branch_id" });
+StudentProfile.belongsTo(Branch, { foreignKey: "branch_id" });
+
+// Semester -> StudentProfile
+Semester.hasMany(StudentProfile, { foreignKey: "semester_id" });
+StudentProfile.belongsTo(Semester, { foreignKey: "semester_id" });
+
 export {
   Department,
   Degree,
@@ -56,4 +69,5 @@ export {
   TimeSlot,
   DateSheet,
   User,
+  StudentProfile,
 };

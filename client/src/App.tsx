@@ -7,6 +7,7 @@ import AdminLogin from "./pages/AdminLogin";
 import StudentLogin from "./pages/Login";
 import Register from "./pages/Register";
 import StudentDashboard from "./pages/StudentDashboard";
+import StudentDatesheet from "./pages/StudentDatesheet";
 import Dashboard from "./pages/Dashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -68,10 +69,7 @@ export default function App() {
         path="/student/datesheet"
         element={
           <ProtectedRoute>
-            <div className="p-8">
-              <h1 className="text-2xl font-bold">My Datesheet</h1>
-              <p>Datesheet details coming soon...</p>
-            </div>
+            <StudentDatesheet />
           </ProtectedRoute>
         }
       />

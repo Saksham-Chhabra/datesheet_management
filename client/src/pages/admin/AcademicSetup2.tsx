@@ -7,11 +7,13 @@ import {
   degreeApi,
   semesterApi,
   subjectApi,
+  timeSlotApi,
   yearApi,
   type Branch,
   type Department,
   type Degree,
   type Semester,
+  type TimeSlot,
   type Year,
 } from "../../api";
 
@@ -21,6 +23,7 @@ type TabName =
   | "Branches"
   | "Years"
   | "Semesters"
+  | "Time Slots"
   | "Subjects";
 
 function toNumericId(value: unknown) {
@@ -52,6 +55,7 @@ export default function AcademicSetup() {
       "Branches",
       "Years",
       "Semesters",
+      "Time Slots",
       "Subjects",
     ],
     [],
@@ -96,6 +100,7 @@ export default function AcademicSetup() {
         {activeTab === "Degrees" && <DegreesSection />}
         {activeTab === "Branches" && <BranchesSection />}
         {activeTab === "Semesters" && <SemestersSection />}
+        {activeTab === "Time Slots" && <TimeSlotsSection />}
         {activeTab === "Subjects" && <SubjectsSection />}
       </div>
     </AdminLayout>
@@ -335,6 +340,119 @@ function SemestersSection() {
       }
       isNumber
     />
+  );
+}
+
+/* ================= TIME SLOTS ================= */
+
+function TimeSlotsSection() {
+  const [slots, setSlots] = useState<TimeSlot[]>([]);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const loadSlots = async () => {
+    try {
+      setLoading(true);
+      const data = await timeSlotApi.getAll();
+      setSlots(data);
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to load time slots"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSlots();
+  }, []);
+
+  const addSlot = async () => {
+    if (!startTime || !endTime) {
+      setError("Select both start and end time.");
+      return;
+    }
+
+    try {
+      setError("");
+      await timeSlotApi.create({ start_time: startTime, end_time: endTime });
+      setStartTime("");
+      setEndTime("");
+      await loadSlots();
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to create time slot"));
+    }
+  };
+
+  const deleteSlot = async (slotId: number) => {
+    try {
+      setError("");
+      await timeSlotApi.delete(slotId);
+      await loadSlots();
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to delete time slot"));
+    }
+  };
+
+  return (
+    <div className="bg-white p-6 rounded shadow">
+      {error ? <div className="mb-4 text-sm text-red-600">{error}</div> : null}
+
+      <div className="flex gap-3 mb-4 items-center">
+        <input
+          type="time"
+          value={startTime}
+          onChange={(e) => setStartTime(e.target.value)}
+          className="border px-3 py-2 rounded"
+        />
+        <input
+          type="time"
+          value={endTime}
+          onChange={(e) => setEndTime(e.target.value)}
+          className="border px-3 py-2 rounded"
+        />
+        <button
+          onClick={addSlot}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Add Time Slot
+        </button>
+      </div>
+
+      <table className="w-full border text-sm">
+        <thead>
+          <tr>
+            <th className="border px-2 py-1">ID</th>
+            <th className="border px-2 py-1">Start Time</th>
+            <th className="border px-2 py-1">End Time</th>
+            <th className="border px-2 py-1">Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {slots.map((slot) => (
+            <tr key={slot.slot_id}>
+              <td className="border px-2 py-1">{slot.slot_id}</td>
+              <td className="border px-2 py-1">{slot.start_time}</td>
+              <td className="border px-2 py-1">{slot.end_time}</td>
+              <td
+                className="border px-2 py-1 text-red-600 cursor-pointer"
+                onClick={() => deleteSlot(Number(slot.slot_id))}
+              >
+                Delete
+              </td>
+            </tr>
+          ))}
+          {!loading && slots.length === 0 ? (
+            <tr>
+              <td className="border px-2 py-2 text-gray-500" colSpan={4}>
+                No time slots found. Add one to use Generate Datesheet.
+              </td>
+            </tr>
+          ) : null}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

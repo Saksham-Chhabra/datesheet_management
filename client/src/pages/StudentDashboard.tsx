@@ -1,10 +1,69 @@
+import axios from "axios";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
+import { datesheetApi, type DateSheetRecord } from "../api";
+
+function getErrorMessage(err: unknown, fallback: string) {
+  if (axios.isAxiosError(err)) {
+    const data = err.response?.data;
+    if (data && typeof data === "object" && "message" in data) {
+      const message = (data as { message?: unknown }).message;
+      if (typeof message === "string") return message;
+    }
+  }
+
+  if (err instanceof Error) return err.message;
+  return fallback;
+}
+
+function formatDateLabel(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export default function StudentDashboard() {
   const { email } = useAuth();
   const navigate = useNavigate();
+  const [datesheet, setDatesheet] = useState<DateSheetRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadDatesheet() {
+      try {
+        setLoading(true);
+        setError("");
+        const data = await datesheetApi.getMy();
+        setDatesheet(data);
+      } catch (err) {
+        setError(getErrorMessage(err, "Failed to load datesheet"));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadDatesheet();
+  }, []);
+
+  const upcomingDatesheet = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return datesheet
+      .filter((row) => {
+        const examDate = new Date(row.exam_date);
+        return !Number.isNaN(examDate.getTime()) && examDate >= today;
+      })
+      .sort((a, b) => a.exam_date.localeCompare(b.exam_date))
+      .slice(0, 6);
+  }, [datesheet]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -119,6 +178,64 @@ export default function StudentDashboard() {
               </p>
             </div>
           </div>
+        </div>
+
+        <div className="mt-8 bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Upcoming Exams
+            </h2>
+            <button
+              onClick={() => navigate("/student/datesheet")}
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              View full datesheet
+            </button>
+          </div>
+
+          {loading ? (
+            <p className="text-sm text-gray-500">Loading datesheet...</p>
+          ) : null}
+          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+          {!loading && !error && upcomingDatesheet.length === 0 ? (
+            <p className="text-sm text-gray-500">
+              No datesheet entries available yet.
+            </p>
+          ) : null}
+
+          {!loading && !error && upcomingDatesheet.length > 0 ? (
+            <table className="w-full border text-sm">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="border px-4 py-2 text-left">Date</th>
+                  <th className="border px-4 py-2 text-left">Subject</th>
+                  <th className="border px-4 py-2 text-left">Time</th>
+                  <th className="border px-4 py-2 text-left">Exam</th>
+                </tr>
+              </thead>
+              <tbody>
+                {upcomingDatesheet.map((row) => (
+                  <tr key={row.datesheet_id}>
+                    <td className="border px-4 py-2">
+                      {formatDateLabel(row.exam_date)}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {row.Subject?.subject_name ?? "-"}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {row.TimeSlot
+                        ? `${row.TimeSlot.start_time} - ${row.TimeSlot.end_time}`
+                        : "-"}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {row.Exam?.exam_type ?? "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : null}
         </div>
       </div>
     </div>

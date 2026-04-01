@@ -8,6 +8,7 @@ export { subjectApi } from "./subject.api";
 export { examApi } from "./exam.api";
 export { timeSlotApi } from "./timeSlot.api";
 export { datesheetApi } from "./datesheet.api";
+export { authApi } from "./auth.api";
 
 // Export types
 export type { Department } from "./department.api";
@@ -18,4 +19,14 @@ export type { Semester } from "./semester.api";
 export type { Subject } from "./subject.api";
 export type { Exam } from "./exam.api";
 export type { TimeSlot } from "./timeSlot.api";
-export type { DateSheet } from "./datesheet.api";
+export type {
+  AcademicProfilePayload,
+  AuthResponse,
+  MeResponse,
+} from "./auth.api";
+export type {
+  DateSheet,
+  DateSheetRecord,
+  GenerateDateSheetPayload,
+  GenerateDateSheetResponse,
+} from "./datesheet.api";
