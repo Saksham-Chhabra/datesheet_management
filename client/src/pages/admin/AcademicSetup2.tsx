@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import {
   branchApi,
@@ -540,6 +540,18 @@ function AdvancedCrud({
   const [editValue, setEditValue] = useState("");
   const [formError, setFormError] = useState("");
 
+  const activeFilters = useMemo(() => {
+    if (!extraFields || typeof extraFields !== "object") {
+      return {} as Record<string, unknown>;
+    }
+
+    return Object.fromEntries(
+      Object.entries(extraFields).filter(
+        ([, value]) => value !== null && value !== undefined && value !== "",
+      ),
+    ) as Record<string, unknown>;
+  }, [extraFields]);
+
   const getMissingExtraFieldNames = () => {
     if (!extraFields || typeof extraFields !== "object") {
       return [];
@@ -552,14 +564,31 @@ function AdvancedCrud({
       .map(([key]) => key);
   };
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const data = await api.getAll();
-    setItems(data);
-  };
+
+    if (Object.keys(activeFilters).length === 0) {
+      setItems(data);
+      return;
+    }
+
+    const filtered = data.filter((item: Record<string, unknown>) =>
+      Object.entries(activeFilters).every(([filterKey, filterValue]) => {
+        if (!(filterKey in item)) {
+          return true;
+        }
+
+        const itemValue = item[filterKey];
+        return String(itemValue) === String(filterValue);
+      }),
+    );
+
+    setItems(filtered);
+  }, [api, activeFilters]);
 
   useEffect(() => {
-    load();
-  }, []);
+    void load();
+  }, [load]);
 
   const add = async () => {
     if (!input.trim()) return;

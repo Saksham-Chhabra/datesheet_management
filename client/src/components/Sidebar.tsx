@@ -42,6 +42,17 @@ export default function Sidebar() {
         >
           📅 Generate Datesheet
         </NavLink>
+
+        <NavLink
+          to="/datasheets"
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-2 rounded-md transition ${
+              isActive ? "bg-blue-800" : "hover:bg-blue-600"
+            }`
+          }
+        >
+          📖 View Datasheets
+        </NavLink>
       </nav>
     </aside>
   );

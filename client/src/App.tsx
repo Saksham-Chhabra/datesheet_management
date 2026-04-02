@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AcademicSetup from "./pages/admin/AcademicSetup2";
 import GenerateDatesheet from "./pages/admin/GenerateDatesheet";
+import ViewDatesheets from "./pages/admin/ViewDatesheets";
 import LoginChoice from "./pages/LoginChoice";
 import AdminLogin from "./pages/AdminLogin";
 import StudentLogin from "./pages/Login";
@@ -52,6 +53,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <GenerateDatesheet />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/datasheets"
+        element={
+          <ProtectedRoute>
+            <ViewDatesheets />
           </ProtectedRoute>
         }
       />

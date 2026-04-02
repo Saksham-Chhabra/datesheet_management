@@ -252,18 +252,15 @@ export async function generateDateSheet(req, res) {
         });
       }
 
-      const [existingOrCreated] = await Exam.findOrCreate({
-        where: {
+      // Create a new exam per generation request so each generated datesheet
+      // remains scoped to its branch + semester selection.
+      exam = await Exam.create(
+        {
           exam_type: String(exam_type).trim(),
           academic_year: String(academic_year).trim(),
         },
-        defaults: {
-          exam_type: String(exam_type).trim(),
-          academic_year: String(academic_year).trim(),
-        },
-        transaction,
-      });
-      exam = existingOrCreated;
+        { transaction }
+      );
     }
 
     const slot = await TimeSlot.findByPk(slot_id, { transaction });
